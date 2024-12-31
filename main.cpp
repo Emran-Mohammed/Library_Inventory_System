@@ -1,9 +1,10 @@
+
 #include <iostream>
 #include <iomanip>
 #include <string>
-#include <windows.h>
-using namespace std;
+#include <windows.h> // For Sleep function
 
+using namespace std;
 
 struct Book {
     int id;
@@ -12,20 +13,20 @@ struct Book {
     int copies;
 };
 
-void clearscreen(){
-    system("cls");
-}
-void pause(int seconds){
-    Sleep(seconds * 1000);
+void clearScreen() {
+    system("cls"); // Clear screen for Windows
 }
 
+void pause(int seconds) {
+    Sleep(seconds * 1000); // Convert seconds to milliseconds
+}
 
-void displayLibrary(Book library[], int no_book){
-    clearscreen();
+void displayBooks(Book library[], int size) {
+    clearScreen();
     cout << "===================================" << endl;
     cout << "           Library Books           " << endl;
     cout << "===================================" << endl;
-    if (no_book == 0) {
+    if (size == 0) {
         cout << "No books available in the library!" << endl;
     } else {
         cout << left << setw(5) << "ID"
@@ -33,7 +34,7 @@ void displayLibrary(Book library[], int no_book){
              << setw(20) << "Author"
              << setw(10) << "Copies" << endl;
         cout << "-----------------------------------" << endl;
-        for (int i = 0; i < no_book; ++i) {
+        for (int i = 0; i < size; ++i) {
             cout << left << setw(5) << library[i].id
                  << setw(30) << library[i].title
                  << setw(20) << library[i].author
@@ -44,11 +45,11 @@ void displayLibrary(Book library[], int no_book){
     cout << "\nPress Enter to continue...";
     cin.ignore();
     cin.get();
-
 }
-void addBook(Book library[], int &no_book, int MAX_BOOK){
-    clearscreen();
-    if (no_book >= MAX_BOOK) {
+
+void addBook(Book library[], int &size, int max_size) {
+    clearScreen();
+    if (size >= max_size) {
         cout << "Library is full!" << endl;
         pause(2);
         return;
@@ -59,22 +60,22 @@ void addBook(Book library[], int &no_book, int MAX_BOOK){
 
     cout << "Enter book ID: ";
     cin >> id;
-    cout << "Enter book title: ";
     cin.ignore();
+    cout << "Enter book title: ";
     getline(cin, title);
     cout << "Enter book author: ";
     getline(cin, author);
     cout << "Enter number of copies: ";
     cin >> copies;
 
-    library[no_book] = {id, title, author, copies};
-    no_book++;
+    library[size] = {id, title, author, copies};
+    size++;
     cout << "Book added successfully!" << endl;
     pause(2);
-
 }
-void updateBookCopies(Book library[], int id, int new_copies){
-    clearscreen();
+
+void updateBookCopies(Book library[], int size, int id, int new_copies) {
+    clearScreen();
     for (int i = 0; i < size; ++i) {
         if (library[i].id == id) {
             library[i].copies = new_copies;
@@ -85,16 +86,28 @@ void updateBookCopies(Book library[], int id, int new_copies){
     }
     cout << "Book not found!" << endl;
     pause(2);
-
 }
-void removeBook(Book library[], int &no_book, int id ){
-    clearscreen();
 
-
+void removeBook(Book library[], int &size, int id) {
+    clearScreen();
+    for (int i = 0; i < size; ++i) {
+        if (library[i].id == id) {
+            for (int j = i; j < size - 1; ++j) {
+                library[j] = library[j + 1];
+            }
+            size--;
+            cout << "Book with ID " << id << " removed from the library." << endl;
+            pause(2);
+            return;
+        }
+    }
+    cout << "Book not found!" << endl;
+    pause(2);
 }
-void searchBook(Book library[] , int no_book, int id){
-    clearscreen();
-    for (int i = 0; i < no_book; ++i) {
+
+void searchBook(Book library[], int size, int id) {
+    clearScreen();
+    for (int i = 0; i < size; ++i) {
         if (library[i].id == id) {
             cout << "Book Found!" << endl;
             cout << "ID: " << library[i].id << endl;
@@ -109,21 +122,17 @@ void searchBook(Book library[] , int no_book, int id){
     }
     cout << "Book not found!" << endl;
     pause(2);
-
 }
 
+int main() {
+    const int MAX_BOOKS = 100;
+    Book library[MAX_BOOKS];
+    int library_size = 0;
 
 
-
-int main(){
-    int choice;
-    const int MAX_BOOK = 100;
-    Book library[MAX_BOOK];
-    int no_book;
-
-
+int choice;
     do {
-        clearscreen();
+        clearScreen();
         cout << "===================================" << endl;
         cout << "     Library Management System     " << endl;
         cout << "===================================" << endl;
@@ -137,39 +146,45 @@ int main(){
         cout << "Enter your choice: ";
         cin >> choice;
 
-        if (cin.fail()){
-            cin.clear();
-            cin.ignore();
-            cout<<"The input is wrong, Please enter a number!"<<endl;
-            cin >> choice;
-        }
-        switch(choice){
+        switch (choice) {
             case 1:
-                displayLibrary(library, no_book);
+                displayBooks(library, library_size);
                 break;
             case 2:
-                addBook(library, no_book, MAX_BOOK);
+                addBook(library, library_size, MAX_BOOKS);
                 break;
-            case 3:
-                updateBookCopies();
+            case 3: {
+                int id, new_copies;
+                cout << "Enter book ID to update: ";
+                cin >> id;
+                cout << "Enter new number of copies: ";
+                cin >> new_copies;
+                updateBookCopies(library, library_size, id, new_copies);
                 break;
-            case 4:
-                removeBook();
+            }
+            case 4: {
+                int id;
+                cout << "Enter book ID to remove: ";
+                cin >> id;
+                removeBook(library, library_size, id);
                 break;
-            case 5:
-                searchBook();
+            }
+            case 5: {
+                int id;
+                cout << "Enter book ID to search: ";
+                cin >> id;
+                searchBook(library, library_size, id);
                 break;
+            }
             case 6:
-                cout << "Thank you for using our Libray system"<<endl;
+                cout << "Exiting the system. Goodbye!" << endl;
                 break;
             default:
-                cout << "invalid number, try 1 - 6" << endl;
+                cout << "Invalid choice. Try again!" << endl;
                 pause(2);
                 break;
-
-
         }
+    } while (choice != 6);
 
-    }while(choice != 6);
     return 0;
 }
