@@ -1,6 +1,6 @@
-
 #include <iostream>
 #include <iomanip>
+#include <vector>
 #include <string>
 #include <windows.h> // For Sleep function
 
@@ -21,12 +21,12 @@ void pause(int seconds) {
     Sleep(seconds * 1000); // Convert seconds to milliseconds
 }
 
-void displayBooks(Book library[], int size) {
+void displayBooks(const vector<Book> &library) {
     clearScreen();
     cout << "===================================" << endl;
     cout << "           Library Books           " << endl;
     cout << "===================================" << endl;
-    if (size == 0) {
+    if (library.empty()) {
         cout << "No books available in the library!" << endl;
     } else {
         cout << left << setw(5) << "ID"
@@ -34,11 +34,12 @@ void displayBooks(Book library[], int size) {
              << setw(20) << "Author"
              << setw(10) << "Copies" << endl;
         cout << "-----------------------------------" << endl;
-        for (int i = 0; i < size; ++i) {
-            cout << left << setw(5) << library[i].id
-                 << setw(30) << library[i].title
-                 << setw(20) << library[i].author
-                 << setw(10) << library[i].copies << endl;
+        for (size_t i = 0; i < library.size(); ++i) {
+            const Book &book = library[i];
+            cout << left << setw(5) << book.id
+                 << setw(30) << book.title
+                 << setw(20) << book.author
+                 << setw(10) << book.copies << endl;
         }
     }
     cout << "===================================" << endl;
@@ -47,9 +48,9 @@ void displayBooks(Book library[], int size) {
     cin.get();
 }
 
-void addBook(Book library[], int &size, int max_size) {
+void addBook(vector<Book> &library, int max_size) {
     clearScreen();
-    if (size >= max_size) {
+    if (library.size() >= max_size) {
         cout << "Library is full!" << endl;
         pause(2);
         return;
@@ -68,15 +69,14 @@ void addBook(Book library[], int &size, int max_size) {
     cout << "Enter number of copies: ";
     cin >> copies;
 
-    library[size] = {id, title, author, copies};
-    size++;
+    library.push_back({id, title, author, copies});
     cout << "Book added successfully!" << endl;
     pause(2);
 }
 
-void updateBookCopies(Book library[], int size, int id, int new_copies) {
+void updateBookCopies(vector<Book> &library, int id, int new_copies) {
     clearScreen();
-    for (int i = 0; i < size; ++i) {
+    for (size_t i = 0; i < library.size(); ++i) {
         if (library[i].id == id) {
             library[i].copies = new_copies;
             cout << "Copies of the book with ID " << id << " updated to " << new_copies << endl;
@@ -88,14 +88,11 @@ void updateBookCopies(Book library[], int size, int id, int new_copies) {
     pause(2);
 }
 
-void removeBook(Book library[], int &size, int id) {
+void removeBook(vector<Book> &library, int id) {
     clearScreen();
-    for (int i = 0; i < size; ++i) {
-        if (library[i].id == id) {
-            for (int j = i; j < size - 1; ++j) {
-                library[j] = library[j + 1];
-            }
-            size--;
+    for (auto it = library.begin(); it != library.end(); ++it) {
+        if (it->id == id) {
+            library.erase(it);
             cout << "Book with ID " << id << " removed from the library." << endl;
             pause(2);
             return;
@@ -105,15 +102,16 @@ void removeBook(Book library[], int &size, int id) {
     pause(2);
 }
 
-void searchBook(Book library[], int size, int id) {
+void searchBook(const vector<Book> &library, int id) {
     clearScreen();
-    for (int i = 0; i < size; ++i) {
-        if (library[i].id == id) {
+    for (size_t i = 0; i < library.size(); ++i) {
+        const Book &book = library[i];
+        if (book.id == id) {
             cout << "Book Found!" << endl;
-            cout << "ID: " << library[i].id << endl;
-            cout << "Title: " << library[i].title << endl;
-            cout << "Author: " << library[i].author << endl;
-            cout << "Copies: " << library[i].copies << endl;
+            cout << "ID: " << book.id << endl;
+            cout << "Title: " << book.title << endl;
+            cout << "Author: " << book.author << endl;
+            cout << "Copies: " << book.copies << endl;
             cout << "\nPress Enter to continue...";
             cin.ignore();
             cin.get();
@@ -126,11 +124,9 @@ void searchBook(Book library[], int size, int id) {
 
 int main() {
     const int MAX_BOOKS = 100;
-    Book library[MAX_BOOKS];
-    int library_size = 0;
+    vector<Book> library;
 
-
-int choice;
+    int choice;
     do {
         clearScreen();
         cout << "===================================" << endl;
@@ -148,10 +144,10 @@ int choice;
 
         switch (choice) {
             case 1:
-                displayBooks(library, library_size);
+                displayBooks(library);
                 break;
             case 2:
-                addBook(library, library_size, MAX_BOOKS);
+                addBook(library, MAX_BOOKS);
                 break;
             case 3: {
                 int id, new_copies;
@@ -159,21 +155,21 @@ int choice;
                 cin >> id;
                 cout << "Enter new number of copies: ";
                 cin >> new_copies;
-                updateBookCopies(library, library_size, id, new_copies);
+                updateBookCopies(library, id, new_copies);
                 break;
             }
             case 4: {
                 int id;
                 cout << "Enter book ID to remove: ";
                 cin >> id;
-                removeBook(library, library_size, id);
+                removeBook(library, id);
                 break;
             }
             case 5: {
                 int id;
                 cout << "Enter book ID to search: ";
                 cin >> id;
-                searchBook(library, library_size, id);
+                searchBook(library, id);
                 break;
             }
             case 6:
