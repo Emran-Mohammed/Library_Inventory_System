@@ -105,24 +105,8 @@ void removeBook(Book library[], int &size, int id) {
     pause(2);
 }
 
-void searchBook(Book library[], int size, int id) {
-    clearScreen();
-    for (int i = 0; i < size; ++i) {
-        if (library[i].id == id) {
-            cout << "Book Found!" << endl;
-            cout << "ID: " << library[i].id << endl;
-            cout << "Title: " << library[i].title << endl;
-            cout << "Author: " << library[i].author << endl;
-            cout << "Copies: " << library[i].copies << endl;
-            cout << "\nPress Enter to continue...";
-            cin.ignore();
-            cin.get();
-            return;
-        }
-    }
-    cout << "Book not found!" << endl;
-    pause(2);
-}
+
+
 
 int main() {
     const int MAX_BOOKS = 100;
